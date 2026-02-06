@@ -50,17 +50,30 @@ Global exception handler provides consistent JSON responses.
 
 🧾 API Endpoints
 Products
-Method	Endpoint	Description
+Method	Endpoint	
+
 POST	/api/products	Create a new product
+
 GET	/api/products	Retrieve all products
+
 GET	/api/products/{id}	Get product by ID
+
 PUT	/api/products/{id}	Update product details
+
 DELETE	/api/products/{id}	Delete product
+
 Orders
+----------
+
 Method	Endpoint	Description
+
 POST	/api/orders	Place a new order
+
 GET	/api/orders/{id}	Get order by ID
+
 📦 JSON Request Examples
+------------------------
+
 Create Product
 {
   "name": "Laptop",
