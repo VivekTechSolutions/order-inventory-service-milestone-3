@@ -13,6 +13,7 @@ import com.example.milestone_3.entity.Order;
 import com.example.milestone_3.entity.OrderItem;
 import com.example.milestone_3.entity.Product;
 import com.example.milestone_3.exception.InsufficientStockException;
+import com.example.milestone_3.exception.InvalidQuantityException;
 import com.example.milestone_3.exception.ResourceNotFoundException;
 import com.example.milestone_3.repository.OrderRepository;
 import com.example.milestone_3.repository.ProductRepository;
@@ -46,20 +47,31 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemRequest itemRequest : request.getItems()) {
 
+            // --- Validate quantity ---
+            if (itemRequest.getQuantity() == null || itemRequest.getQuantity() < 1) {
+                throw new InvalidQuantityException(
+                    "Quantity must be at least 1 for productId: " + itemRequest.getProductId()
+                );
+            }
+
+            // --- Fetch product ---
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() ->
-                            new ResourceNotFoundException("Product not found with id "
-                                    + itemRequest.getProductId()));
+                            new ResourceNotFoundException(
+                                "Product not found with id " + itemRequest.getProductId()
+                            ));
 
+            // --- Check stock ---
             if (product.getStock() < itemRequest.getQuantity()) {
                 throw new InsufficientStockException(
                         "Insufficient stock for product: " + product.getName());
             }
 
-            // reduce stock
+            // --- Reduce stock ---
             product.setStock(product.getStock() - itemRequest.getQuantity());
             productRepository.save(product);
 
+            // --- Create order item ---
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -77,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
 
         return mapToResponse(savedOrder);
     }
+
 
     @Override
     public OrderResponse getOrderById(Long orderId) {
